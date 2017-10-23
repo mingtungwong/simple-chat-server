@@ -12,6 +12,6 @@ public class Message {
     }
 
     public String toString() {
-        return '<' + timestamp.toString() + '>' + sender + ':' + message;
+        return "<" + timestamp.toString().substring(4, 19) + "> " + sender + ": " + message;
     }
 }
