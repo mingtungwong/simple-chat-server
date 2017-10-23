@@ -1,11 +1,21 @@
+import java.util.HashMap;
 import java.util.ArrayList;
 
 public class Chat {
-    private ArrayList<User> users;
+    private HashMap<String, User> users;
     private ArrayList<Message> messages;
 
     public Chat() {
-        users = new ArrayList<User>();
+        users = new HashMap<String, User>();
         messages = new ArrayList<Message>();
+    }
+
+    public void addUser(String uName) throws Exception {
+        if(!hasUser(uName)) users.put(uName, new User(uName));
+        else throw new Exception("The user already exists");
+    }
+
+    public boolean hasUser(String uName) {
+        return users.get(uName) != null;
     }
 }
