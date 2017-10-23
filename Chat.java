@@ -11,7 +11,7 @@ public class Chat {
     }
 
     public void addUser(String uName) throws Exception {
-        if(!hasUser(uName)) users.put(uName, new User(uName));
+        if(!hasUser(uName)) users.add(new User(uName));
         else throw new Exception("The user already exists");
     }
 
