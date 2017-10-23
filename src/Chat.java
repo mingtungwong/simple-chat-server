@@ -14,6 +14,8 @@ public class Chat {
         else throw new Exception("The user already exists");
     }
 
+    public User[] getUsers() { return (User[])users.keySet().toArray(); }
+
     public boolean hasUser(String uName) {
         return users.get(uName) != null;
     }
