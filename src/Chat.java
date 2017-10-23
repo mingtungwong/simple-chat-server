@@ -1,13 +1,12 @@
-import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.*;
 
 public class Chat {
-    private HashMap<String, User> users;
-    private ArrayList<Message> messages;
+    private Map users;
+    private List messages;
 
     public Chat() {
-        users = new HashMap<String, User>();
-        messages = new ArrayList<Message>();
+        users = Collections.synchronizedMap(new HashMap<String, User>());
+        messages = Collections.synchronizedList(new ArrayList<Message>());
     }
 
     public void addUser(String uName) throws Exception {
@@ -17,5 +16,21 @@ public class Chat {
 
     public boolean hasUser(String uName) {
         return users.get(uName) != null;
+    }
+
+    public void addMessage(String username, String message) {
+        messages.add(new Message(username, message));
+        messages.sort(new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                return ((Message) o1).getTimestamp().compareTo(((Message) o2).getTimestamp());
+            }
+        });
+    }
+
+    public String toString() {
+        String result = "";
+        for(Object m: messages) result += m.toString() + "\n";
+        return result;
     }
 }
