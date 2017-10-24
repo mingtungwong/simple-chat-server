@@ -4,6 +4,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -14,26 +15,59 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.ArrayList;
+
 public class ClientGUI extends Application {
+
+    private static ArrayList<Message> messages = new ArrayList<Message>();
+    private static ArrayList<User> users = new ArrayList<User>();
+    private static Socket client;
+    private static ObjectOutputStream out;
+    private static ObjectInputStream in;
+    private static Stage primaryStage;
+    private static String user;
 
     public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) {
-        setup(primaryStage);
-        createScene(primaryStage);
+    public void start(Stage pStage) {
+        primaryStage = pStage;
+        setupConnection();
+        setup();
+        createScene();
         primaryStage.show();
     }
 
-    private void setup(Stage primaryStage) {
+    private void setupConnection() {
+        Thread connection = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    client = new Socket("127.0.0.1", 5555);
+                    out = new ObjectOutputStream(client.getOutputStream());
+                    in = new ObjectInputStream(client.getInputStream());
+                    Request r = (Request)in.readObject();
+                    handleResponse(r);
+                } catch(Exception e) {
+                    new Alert(Alert.AlertType.ERROR, e.getMessage());
+                }
+            }
+        });
+        connection.start();
+    }
+
+    private void setup() {
         primaryStage.setTitle("Login");
         primaryStage.setWidth(300);
         primaryStage.setHeight(300);
     }
 
-    private void createScene(Stage primaryStage) {
+    private void createScene() {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
@@ -64,8 +98,28 @@ public class ClientGUI extends Application {
         btn.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                System.out.println(userText.getText());
+                user = userText.getText();
+                try {
+                    out.writeObject(new Request(Request.Requests.ADDUSER, user));
+                } catch (Exception e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+
+                //Alert alert = new Alert(Alert.AlertType.ERROR, "The Username is already in use. Please choose another one\nand try again.");
+                //alert.showAndWait();
             }
         });
+    }
+
+    private static void handleResponse(Request rq) {
+        Request.Requests type = rq.getRequestType();
+        switch(type) {
+            case ADDUSER:
+                createMainView();
+        }
+    }
+
+    private static void createMainView() {
+        System.out.println("I'm here");
     }
 }
