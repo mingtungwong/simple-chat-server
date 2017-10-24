@@ -14,6 +14,7 @@ public class Server {
     private static void startServer(int port) {
         try {
             ServerSocket welcome = new ServerSocket(port);
+            System.out.println("Server started...");
 
             while(true) {
                 Socket client = welcome.accept();
@@ -36,7 +37,6 @@ public class Server {
         switch(request.getRequestType()) {
             case ADDUSER:
                 return tryToAddUser(request.getData());
-                break;
             case ADDMESSAGE:
                 break;
             case GETMESSAGES:
@@ -51,11 +51,16 @@ public class Server {
     private static Request tryToAddUser(Object o) {
         try {
             c.addUser((String) o);
+            System.out.println("in try to add User" + c.getUsers());
+            Object[] test = (Object[])c.getUsers();
+            for(Object s: test) {
+                System.out.println((String)s);
+            }
             return new Request(Request.Requests.ADDUSER, c.getUsers());
         } catch(Exception e) {
+            System.out.println("error");
+            System.out.println(e.getMessage());
             return new Request(Request.Requests.ERROR, e.getMessage());
         }
     }
-
-
 }
